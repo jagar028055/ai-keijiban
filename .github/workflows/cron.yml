@@ -1,0 +1,31 @@
+name: Auto Update News and Comments
+
+on:
+  schedule:
+    # 毎時実行（JST 9:00, 10:00, 11:00...）
+    - cron: '0 * * * *'
+  workflow_dispatch: # 手動実行も可能
+
+jobs:
+  fetch-news:
+    name: Fetch RSS News
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch News from RSS
+        run: |
+          curl -X GET "https://ai-keijiban.vercel.app/api/cron/fetch-rss" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json" \
+            -v
+
+  generate-comments:
+    name: Generate AI Comments
+    runs-on: ubuntu-latest
+    needs: fetch-news # ニュース取得後に実行
+    steps:
+      - name: Generate Comments for News
+        run: |
+          curl -X GET "https://ai-keijiban.vercel.app/api/generate-comments" \
+            -H "Authorization: Bearer ${{ secrets.INTERNAL_SECRET }}" \
+            -H "Content-Type: application/json" \
+            -v

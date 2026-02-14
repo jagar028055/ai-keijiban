@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Fetch News from RSS
         run: |
-          curl -X GET "https://ai-keijiban.vercel.app/api/cron/fetch-rss" \
+          curl -X GET "https://ai-keijiban-b0yl11gz6-jagars-projects.vercel.app/api/cron/fetch-rss" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             -H "Content-Type: application/json" \
             -v
@@ -25,7 +25,7 @@ jobs:
     steps:
       - name: Generate Comments for News
         run: |
-          curl -X GET "https://ai-keijiban.vercel.app/api/generate-comments" \
+          curl -X GET "https://ai-keijiban-b0yl11gz6-jagars-projects.vercel.app/api/generate-comments" \
             -H "Authorization: Bearer ${{ secrets.INTERNAL_SECRET }}" \
             -H "Content-Type: application/json" \
             -v

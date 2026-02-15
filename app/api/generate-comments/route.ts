@@ -65,7 +65,7 @@ async function tryGenerateComment(
     
     // Remove quotes (「」) that AI sometimes adds
     if (content) {
-      content = content.replace(/^[「"'](.+)[」"']$/s, '$1').trim()
+      content = content.replace(/^[「"'](.+)[」"']$/, '$1').trim()
     }
     
     if (content) {

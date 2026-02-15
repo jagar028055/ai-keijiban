@@ -10,8 +10,8 @@ const FREE_MODELS = [
   { id: 'arcee-ai/trinity-large-preview:free', name: 'Arcee AI Trinity', priority: 3 }, // フォールバック
 ]
 
-// レート制限対策: 短い待機時間（Vercel制限対策）
-const RATE_LIMIT_DELAY_MS = 1000
+// レート制限対策: 最小限の待機時間（Vercel制限対策）
+const RATE_LIMIT_DELAY_MS = 500
 
 interface OpenRouterResponse {
   choices: {

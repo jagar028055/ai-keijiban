@@ -61,7 +61,12 @@ async function tryGenerateComment(
     }
 
     const data: OpenRouterResponse = await response.json()
-    const content = data.choices[0]?.message?.content?.trim()
+    let content = data.choices[0]?.message?.content?.trim()
+    
+    // Remove quotes (「」) that AI sometimes adds
+    if (content) {
+      content = content.replace(/^[「"'](.+)[」"']$/s, '$1').trim()
+    }
     
     if (content) {
       return { success: true, content }
@@ -181,35 +186,45 @@ export async function POST(request: Request) {
         // 各人格ごとにコメント生成（レート制限対策で遅延を入れる）
         for (let i = 0; i < personas.length; i++) {
           const persona = personas[i]
-          try {
-            // レート制限対策: 最初以外は8秒待機
-            if (i > 0) {
-              console.log(`レート制限対策: ${RATE_LIMIT_DELAY_MS}ms 待機中...`)
-              await sleep(RATE_LIMIT_DELAY_MS)
+          let retryCount = 0
+          const maxRetries = 3
+          
+          while (retryCount < maxRetries) {
+            try {
+              // レート制限対策: 最初以外は8秒待機
+              if (i > 0 || retryCount > 0) {
+                console.log(`レート制限対策: ${RATE_LIMIT_DELAY_MS}ms 待機中...`)
+                await sleep(RATE_LIMIT_DELAY_MS)
+              }
+
+              const { content: comment, modelUsed } = await generateCommentWithFallback(
+                persona.promptTemplate,
+                news.title,
+                news.description
+              )
+
+              // モデル使用状況を記録
+              results.modelUsage[modelUsed] = (results.modelUsage[modelUsed] || 0) + 1
+
+              await prisma.comment.create({
+                data: {
+                  newsId: news.id,
+                  personaId: persona.id,
+                  content: comment,
+                },
+              })
+
+              results.generated++
+              break // 成功したらリトライループを抜ける
+            } catch (error) {
+              retryCount++
+              const errorMsg = `Failed to generate comment for persona ${persona.id} on news ${news.id} (attempt ${retryCount}/${maxRetries}): ${error instanceof Error ? error.message : 'Unknown error'}`
+              console.error(errorMsg)
+              
+              if (retryCount >= maxRetries) {
+                results.errors.push(errorMsg)
+              }
             }
-
-            const { content: comment, modelUsed } = await generateCommentWithFallback(
-              persona.promptTemplate,
-              news.title,
-              news.description
-            )
-
-            // モデル使用状況を記録
-            results.modelUsage[modelUsed] = (results.modelUsage[modelUsed] || 0) + 1
-
-            await prisma.comment.create({
-              data: {
-                newsId: news.id,
-                personaId: persona.id,
-                content: comment,
-              },
-            })
-
-            results.generated++
-          } catch (error) {
-            const errorMsg = `Failed to generate comment for persona ${persona.id} on news ${news.id}: ${error instanceof Error ? error.message : 'Unknown error'}`
-            results.errors.push(errorMsg)
-            console.error(errorMsg)
           }
         }
       } catch (error) {

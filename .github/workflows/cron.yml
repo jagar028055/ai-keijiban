@@ -8,10 +8,6 @@ on:
     - cron: '0 * * * *'
   workflow_dispatch: # 手動実行も可能
 
-defaults:
-  run:
-    working-directory: ai-keijiban
-
 jobs:
   fetch-news:
     name: Fetch RSS News

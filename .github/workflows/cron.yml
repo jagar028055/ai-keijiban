@@ -8,6 +8,10 @@ on:
     - cron: '0 * * * *'
   workflow_dispatch: # 手動実行も可能
 
+defaults:
+  run:
+    working-directory: ai-keijiban
+
 jobs:
   fetch-news:
     name: Fetch RSS News
@@ -22,15 +26,12 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        working-directory: ./ai-keijiban
         run: npm ci
 
       - name: Generate Prisma Client
-        working-directory: ./ai-keijiban
         run: npx prisma generate
 
       - name: Fetch News from RSS
-        working-directory: ./ai-keijiban
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
@@ -53,15 +54,12 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        working-directory: ./ai-keijiban
         run: npm ci
 
       - name: Generate Prisma Client
-        working-directory: ./ai-keijiban
         run: npx prisma generate
 
       - name: Generate Comments
-        working-directory: ./ai-keijiban
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}

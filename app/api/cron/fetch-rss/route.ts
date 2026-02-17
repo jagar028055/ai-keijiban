@@ -4,12 +4,12 @@ import { prisma } from '@/lib/prisma'
 
 const parser = new Parser()
 
-// Google News RSSのカテゴリーリスト
+// Google News RSSのカテゴリーリスト（科学カテゴリは除外）
 const RSS_FEEDS = [
   'https://news.google.com/rss?hl=ja&gl=JP&ceid=JP:ja',
   'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFZxYUdjU0FtVnVHZ0pWVXlnQVAB?hl=ja&gl=JP&ceid=JP:ja', // ビジネス
   'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGRqTVhZU0FtVnVHZ0pWVXlnQVAB?hl=ja&gl=JP&ceid=JP:ja', // テクノロジー
-  'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp1ZEdvU0FtVnVHZ0pWVXlnQVAB?hl=ja&gl=JP&ceid=JP:ja', // 科学
+  // 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp1ZEdvU0FtVnVHZ0pWVXlnQVAB?hl=ja&gl=JP&ceid=JP:ja', // 科学（除外）
   'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp0Y1RjU0FtVnVHZ0pWVXlnQVAB?hl=ja&gl=JP&ceid=JP:ja', // 政治
 ]
 
@@ -17,7 +17,7 @@ function extractCategory(url: string): string {
   if (url.includes('topics')) {
     if (url.includes('CAAqJggKIiBDQkFTRWdvSUwyMHZNRFZxYUdjU0FtVnVHZ0pWVXlnQVAB')) return 'ビジネス'
     if (url.includes('CAAqJggKIiBDQkFTRWdvSUwyMHZNRGRqTVhZU0FtVnVHZ0pWVXlnQVAB')) return 'テクノロジー'
-    if (url.includes('CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp1ZEdvU0FtVnVHZ0pWVXlnQVAB')) return '科学'
+    // if (url.includes('CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp1ZEdvU0FtVnVHZ0pWVXlnQVAB')) return '科学'
     if (url.includes('CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp0Y1RjU0FtVnVHZ0pWVXlnQVAB')) return '政治'
   }
   return '総合'
